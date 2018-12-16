@@ -1,0 +1,12 @@
+# https://prettier.io/docs/en/options.html
+
+printWidth: 100
+tabWidth: 4
+useTabs: true
+semi: false
+singleQuote: true
+trailingComma: "es5"
+bracketSpacing: true
+arrowParens: "always"
+proseWrap: "preserve"
+endOfLine: "lf"

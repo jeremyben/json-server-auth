@@ -1,0 +1,70 @@
+{
+	"compilerOptions": {
+		/* Basic Options */
+		"target": "es2017",
+		"module": "commonjs",
+		"lib": ["es2017"],
+		// "allowJs": true,
+		// "checkJs": true,
+		// "jsx": "preserve",
+		"declaration": true,
+		// "declarationMap": true,
+		// "sourceMap": true,
+		// "outFile": "./",
+		"outDir": "./dist",
+		"rootDir": "./src",
+		// "composite": true,
+		// "removeComments": true,
+		// "noEmit": true,
+		// "importHelpers": true,
+		// "downlevelIteration": true,
+		// "isolatedModules": true,
+
+		/* Strict Type-Checking Options */
+		"strict": true,
+		"noImplicitAny": false,
+		// "strictNullChecks": true,
+		// "strictFunctionTypes": true,
+		// "strictPropertyInitialization": true,
+		// "noImplicitThis": true,
+		// "alwaysStrict": true,
+
+		/* Additional Checks */
+		// "noUnusedLocals": true,
+		// "noUnusedParameters": true,
+		// "noImplicitReturns": true,
+		// "noFallthroughCasesInSwitch": true,
+
+		/* Module Resolution Options */
+		"moduleResolution": "node",
+		// "baseUrl": "./",
+		// "paths": {},
+		// "rootDirs": [],
+		// "typeRoots": [],
+		// "types": [],
+		// "allowSyntheticDefaultImports": true,
+		// "esModuleInterop": true,
+		// "preserveSymlinks": true,
+		"resolveJsonModule": true,
+
+		/* Source Map Options */
+		// "sourceRoot": "",
+		// "mapRoot": "",
+		// "inlineSourceMap": true,
+		// "inlineSources": true,
+
+		/* Experimental Options */
+		// "experimentalDecorators": true,
+		// "emitDecoratorMetadata": true,
+
+		/* Compiler Plugins */
+		"plugins": [
+			{
+				// https://github.com/Microsoft/typescript-tslint-plugin
+				"name": "typescript-tslint-plugin",
+				"configFile": "tslint.json"
+			}
+		]
+	},
+	"include": ["src/**/*.ts"]
+}

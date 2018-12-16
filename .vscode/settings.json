@@ -1,0 +1,11 @@
+{
+	"editor.formatOnSave": true,
+	"npm.packageManager": "yarn",
+	"prettier.requireConfig": true,
+	"rest-client.enableTelemetry": false,
+	"rest-client.defaultHeaders": {
+		"User-Agent": "vscode-restclient",
+		"Accept-Encoding": "gzip",
+		"Content-Type": "application/json"
+	}
+}

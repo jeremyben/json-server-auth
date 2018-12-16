@@ -1,0 +1,36 @@
+# Build output
+dist
+
+# Environment variables file
+.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies directory
+node_modules/
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Optional npm cache directory
+.npm
+
+# OS files
+.DS_Store
+Thumbs.db
+[Dd]esktop.ini
+
+# Vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json

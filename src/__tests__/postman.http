@@ -1,0 +1,62 @@
+# Content-Type predefined to application/json in settings.json
+@root = http://localhost:3000
+@jwt = Bearer {{signin.response.body.$.accessToken}}
+
+###
+
+POST {{root}}/signup HTTP/1.1
+
+{
+    "name": "Jeremy",
+    "email": "jeremy@mail.com",
+    "password": "123456"
+}
+
+###
+
+# @name signin
+POST {{root}}/signin HTTP/1.1
+
+{
+    "email": "jeremy@mail.com",
+    "password": "123456"
+}
+
+### 
+
+GET {{root}}/users/1 HTTP/1.1
+Authorization: {{jwt}}
+
+###
+
+GET {{root}}/660/users/1 HTTP/1.1
+Authorization: {{jwt}}
+
+###
+
+GET {{root}}/600/todos?_expand=user&_sort=text&_order=desc HTTP/1.1
+Authorization: {{jwt}}
+
+###
+
+POST {{root}}/640/todos HTTP/1.1
+Authorization: {{jwt}}
+
+{
+    "userId": 1,
+    "text": "orignal"
+}
+
+###
+
+PATCH {{root}}/640/todos/1 HTTP/1.1
+Authorization: {{jwt}}
+
+{
+    "text": "changed"
+}
+
+
+###
+
+GET {{root}}/db HTTP/1.1

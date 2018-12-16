@@ -1,0 +1,6 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": { "skipLibCheck": true },
+	// https://github.com/Microsoft/TypeScript/pull/5980
+	"exclude": ["**/__tests__", "**/*.test.ts", "**/*.spec.ts"]
+}
