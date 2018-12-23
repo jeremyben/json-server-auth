@@ -1,11 +1,13 @@
 import { RequestHandler, Router } from 'express'
 import * as jwt from 'jsonwebtoken'
+import * as jsonServer from 'json-server'
 import { stringify } from 'querystring'
 import { JWT_SECRET_KEY } from './constants'
-import { bodyParsingHandler, errorHandler, goNext } from './shared'
+import { bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
 
 /**
- * Logged Guard
+ * Logged Guard.
+ * Check JWT.
  */
 const loggedOnly: RequestHandler = (req, res, next) => {
 	const { authorization } = req.headers
@@ -38,9 +40,9 @@ const loggedOnly: RequestHandler = (req, res, next) => {
 }
 
 /**
- * Owner Guard
- * Checking userId reference in the request or the resource
- * Inherits from logged guard
+ * Owner Guard.
+ * Checking userId reference in the request or the resource.
+ * Inherits from logged guard.
  */
 // tslint:disable:triple-equals - so we simply compare resource id (integer) with jwt sub (string)
 const privateOnly: RequestHandler = (req, res, next) => {
@@ -50,7 +52,6 @@ const privateOnly: RequestHandler = (req, res, next) => {
 			throw Error('You must bind the router db to the app')
 		}
 
-		// console.log('private only, claims', req.claims)
 		// TODO: handle query params instead of removing them
 		const path = req.url.replace(`?${stringify(req.query)}`, '')
 		const [, mod, resource, id] = path.split('/')
@@ -88,6 +89,10 @@ const privateOnly: RequestHandler = (req, res, next) => {
 				hasRightUserId = userId == req.claims!.sub
 			} else {
 				const entities = db.get(resource).value() as any[]
+
+				// TODO: Array.every() for properly secured access.
+				// Array.some() is too relax, but maybe useful for prototyping usecase.
+				// But first we must handle the query params.
 				hasRightUserId = entities.some((entity) => entity.userId == req.claims!.sub)
 			}
 
@@ -110,7 +115,7 @@ const privateOnly: RequestHandler = (req, res, next) => {
 // tslint:enable
 
 /**
- *
+ * Forbid all methods except GET.
  */
 const readOnly: RequestHandler = (req, res, next) => {
 	if (req.method === 'GET') {
@@ -125,7 +130,8 @@ type ReadWriteBranch =
 	({ read, write }: { read: RequestHandler, write: RequestHandler }) => RequestHandler
 
 /**
- *
+ * Allow applying a different middleware for GET request (read) and others (write)
+ * (middleware returning a middleware)
  */
 const branch: ReadWriteBranch = ({ read, write }) => {
 	return (req, res, next) => {
@@ -138,7 +144,7 @@ const branch: ReadWriteBranch = ({ read, write }) => {
 }
 
 /**
- *
+ * Remove guard mod from baseUrl, so lowdb can handle the resource.
  */
 const flattenUrl: RequestHandler = (req, res, next) => {
 	// req.url is writable and used for redirection,
@@ -147,11 +153,14 @@ const flattenUrl: RequestHandler = (req, res, next) => {
 	// so we can rewrite it.
 	// https://stackoverflow.com/questions/14125997/
 
-	req.url = req.url.replace(/\/[0-9]{3}/, '')
+	req.url = req.url.replace(/\/[640]{3}/, '')
 	next()
 }
 
-const guardsRouter = Router()
+/**
+ * Guards router
+ */
+export default Router()
 	.use(bodyParsingHandler)
 	.all('/666/*', flattenUrl)
 	.all('/664/*', branch({ read: goNext, write: loggedOnly }), flattenUrl)
@@ -164,4 +173,36 @@ const guardsRouter = Router()
 	.all('/400/*', privateOnly, readOnly, flattenUrl)
 	.use(errorHandler)
 
-export default guardsRouter
+/**
+ * Transform resource-guard mapping to proper rewrite rule supported by express-urlrewrite.
+ * Return other rewrite rules as is, so we can use both types in routes.json.
+ * @example
+ * { 'users': 600 } => { '/users*': '/600/users$1' }
+ */
+export function parseGuardsRules(resourceGuardMap: { [resource: string]: any }) {
+	return Object.entries(resourceGuardMap).reduce(
+		(routes, [resource, guard]) => {
+			const isGuard = /^[640]{3}$/m.test(String(guard))
+
+			if (isGuard) {
+				routes[`/${resource}*`] = `/${guard}/${resource}$1`
+			} else {
+				// Return as is if not a guard
+				routes[resource] = guard
+			}
+
+			return routes
+		},
+		{} as ArgumentType<typeof jsonServer.rewriter>
+	)
+}
+
+/**
+ * Conveniant method to use directly resource-guard mapping
+ * with JSON Server rewriter (which itself uses express-urlrewrite).
+ * Works with normal rewrite rules as well.
+ */
+export function rewriter(resourceGuardMap: { [resource: string]: number }) {
+	const routes = parseGuardsRules(resourceGuardMap)
+	return jsonServer.rewriter(routes)
+}

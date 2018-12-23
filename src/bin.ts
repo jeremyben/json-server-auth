@@ -3,6 +3,11 @@
 // tslint:disable:no-submodule-imports
 import * as yargs from 'yargs'
 import * as jsonServerPkg from 'json-server/package.json'
+import { tmpdir } from 'os'
+import { readFileSync, writeFileSync } from 'fs'
+import { join, basename } from 'path'
+import { parseGuardsRules } from './guards'
+
 import run = require('json-server/lib/cli/run')
 
 // Get the json-server cli module and add our middlewares.
@@ -51,11 +56,27 @@ const argv = yargs
 	.require(1, 'Missing <source> argument').argv
 
 // Add our index path to json-server middlewares.
-
 if (argv.middlewares) {
 	;(<string[]>argv.middlewares).unshift(__dirname)
 } else {
 	;(<string[]>argv.middlewares) = [__dirname]
 }
 
+// Adds guards to json-server routes.
+// We are forced to create an intermediary file:
+// https://github.com/typicode/json-server/blob/master/src/cli/run.js#L109
+if (argv.routes) {
+	let routes = JSON.parse(readFileSync(argv.routes, 'utf8'))
+	routes = parseGuardsRules(routes)
+	routes = JSON.stringify(routes)
+
+	const tmpFilepath = join(tmpdir(), `routes-from-${basename(process.cwd())}.json`)
+	writeFileSync(tmpFilepath, routes, 'utf8')
+
+	argv.routes = tmpFilepath
+}
+// But we won't be able to properly watch and reload custom routes:
+// https://github.com/typicode/json-server/blob/master/src/cli/run.js#L229
+
+// launch json-server
 run(argv)

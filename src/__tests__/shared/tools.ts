@@ -2,12 +2,13 @@ import { writeFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
 import * as jsonServer from 'json-server'
 import * as jsonServerAuth from '../..'
+import { rewriter } from '../../guards'
 
 export const USER = { email: 'jeremy@mail.com', password: '123456', name: 'Jeremy' }
 
 export function inMemoryJsonServer(
 	db: object = {},
-	rules: ArgumentType<typeof jsonServer.rewriter> = {}
+	resourceGuardMap: { [resource: string]: number } = {}
 ) {
 	const app = jsonServer.create()
 	const router = jsonServer.router(db)
@@ -15,7 +16,7 @@ export function inMemoryJsonServer(
 	// https://github.com/typicode/json-server/blob/master/src/cli/run.js#L74
 	app['db'] = router['db']
 
-	app.use(jsonServer.rewriter(rules))
+	app.use(rewriter(resourceGuardMap))
 	app.use(jsonServerAuth)
 	app.use(router)
 

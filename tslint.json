@@ -12,7 +12,7 @@
 		"ordered-imports": false,
 		"object-literal-sort-keys": false,
 		"curly": false,
-		"no-reference": false,
-		"no-implicit-dependencies": [true, "dev"]
+		"no-implicit-dependencies": [true, "dev"],
+		"no-object-literal-type-assertion": false
 	}
 }

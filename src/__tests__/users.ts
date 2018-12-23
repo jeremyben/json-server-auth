@@ -56,7 +56,7 @@ describe('Login user', () => {
 		return rq
 			.post('/login')
 			.send({ ...USER, email: 'arthur@mail.com' })
-			.expect(400, /incorrect email/i)
+			.expect(400, /cannot find user/i)
 	})
 
 	test('[SAD] Wrong password', () => {

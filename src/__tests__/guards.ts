@@ -9,11 +9,11 @@ beforeEach(async () => {
 		users: [{ id: 1, email: 'albert@gmail.com' }],
 		messages: [{ id: 1, text: 'other', userId: 1 }, { id: 2, text: 'mine', userId: 2 }],
 	}
-	const rules = {
-		'/users*': '/600/users$1',
-		'/messages*': '/640/messages$1',
+	const guards = {
+		users: 600,
+		messages: 640,
 	}
-	const app = inMemoryJsonServer(db, rules)
+	const app = inMemoryJsonServer(db, guards)
 	rq = supertest(app)
 
 	// Create user (will have id:2) and keep access token

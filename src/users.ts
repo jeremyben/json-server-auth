@@ -8,7 +8,7 @@ import {
 	MIN_PASSWORD_LENGTH,
 	SALT_LENGTH,
 } from './constants'
-import { bodyParsingHandler, errorHandler } from './shared'
+import { bodyParsingHandler, errorHandler } from './shared-middlewares'
 
 /**
  * User Interface
@@ -140,12 +140,13 @@ const update: RequestHandler = (req, res, next) => {
 	next()
 }
 
-const usersRouter = Router()
+/**
+ * Users router
+ */
+export default Router()
 	.use(bodyParsingHandler)
 	.post('/users|register|signup', create)
 	.post('/login|signin', login)
 	.put('/users/:id', update)
 	.patch('/users/:id', update)
 	.use(errorHandler)
-
-export default usersRouter
