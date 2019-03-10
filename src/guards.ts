@@ -2,8 +2,7 @@ import { RequestHandler, Router } from 'express'
 import * as jwt from 'jsonwebtoken'
 import * as jsonServer from 'json-server'
 import { stringify } from 'querystring'
-import { JWT_SECRET_KEY } from './constants'
-import { bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
+import { loadConfig, bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
 
 /**
  * Logged Guard.
@@ -11,6 +10,7 @@ import { bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
  */
 const loggedOnly: RequestHandler = (req, res, next) => {
 	const { authorization } = req.headers
+  const { auth } = req.app.config
 
 	if (!authorization) {
 		res.status(401).jsonp('Missing authorization header')
@@ -30,7 +30,7 @@ const loggedOnly: RequestHandler = (req, res, next) => {
 	}
 
 	try {
-		jwt.verify(token, JWT_SECRET_KEY)
+		jwt.verify(token, auth.secret)
 		// Add claims to request
 		req.claims = jwt.decode(token) as any
 		next()
@@ -161,6 +161,7 @@ const flattenUrl: RequestHandler = (req, res, next) => {
  * Guards router
  */
 export default Router()
+	.use(loadConfig)
 	.use(bodyParsingHandler)
 	.all('/666/*', flattenUrl)
 	.all('/664/*', branch({ read: goNext, write: loggedOnly }), flattenUrl)
