@@ -1,5 +1,22 @@
 import * as bodyParser from 'body-parser'
 import { ErrorRequestHandler, RequestHandler } from 'express'
+import defaultConfig from './config'
+
+/**
+ * Ensure config existence and merge with user provided
+ */
+export const loadConfig: RequestHandler = (req, res, next) => {
+	const config = req.app.config || {}
+	const auth: AuthConfig = {
+		...defaultConfig,
+		...(config.auth || {})
+	}
+	req.app.config = {
+		...config,
+		auth
+	}
+	next()
+}
 
 /**
  * Use same body-parser options as json-server
@@ -11,6 +28,8 @@ export const bodyParsingHandler = [
 
 /**
  * Json error handler
+ * do not remove unused parameters since are required for signature match
+ * @see http://expressjs.com/en/guide/using-middleware.html#middleware.error-handling
  */
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 	console.error(err)
