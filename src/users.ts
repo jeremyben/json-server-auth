@@ -1,14 +1,7 @@
 import * as bcrypt from 'bcryptjs'
 import { RequestHandler, Router } from 'express'
 import * as jwt from 'jsonwebtoken'
-import {
-	EMAIL_REGEX,
-	JWT_EXPIRES_IN,
-	JWT_SECRET_KEY,
-	MIN_PASSWORD_LENGTH,
-	SALT_LENGTH,
-} from './constants'
-import { bodyParsingHandler, errorHandler } from './shared-middlewares'
+import { loadConfig, bodyParsingHandler, errorHandler } from './shared-middlewares'
 
 /**
  * User Interface
@@ -25,7 +18,8 @@ interface User {
  */
 const create: RequestHandler = (req, res, next) => {
 	const { email, password, ...rest } = req.body as Partial<User>
-	const { db } = req.app
+	const { db, config } = req.app
+	const { auth } = config
 
 	if (db == null) {
 		// json-server CLI expose the router db to the app
@@ -39,18 +33,18 @@ const create: RequestHandler = (req, res, next) => {
 		return
 	}
 
-	if (!email.match(EMAIL_REGEX)) {
+	if (!email.match(auth.emailRegex)) {
 		res.status(400).jsonp('Email format is invalid')
 		return
 	}
 
-	if (password.length < MIN_PASSWORD_LENGTH) {
+	if (password.length < auth.minPassLength) {
 		res.status(400).jsonp('Password is too short')
 		return
 	}
 
 	bcrypt
-		.hash(password, SALT_LENGTH)
+		.hash(password, auth.saltLength)
 		.then((hash) => {
 			// Create users collection if doesn't exist,
 			// save password as hash and add any other field without validation
@@ -65,8 +59,8 @@ const create: RequestHandler = (req, res, next) => {
 		})
 		.then((user: User) => {
 			// Return an access token instead of the user record
-			const accessToken = jwt.sign({ email }, JWT_SECRET_KEY, {
-				expiresIn: JWT_EXPIRES_IN,
+			const accessToken = jwt.sign({ email }, auth.secret, {
+				...auth.jwt,
 				subject: String(user.id),
 			})
 			res.status(201).jsonp({ accessToken })
@@ -80,6 +74,7 @@ const create: RequestHandler = (req, res, next) => {
 const login: RequestHandler = (req, res, next) => {
 	const { email, password } = req.body as Partial<User>
 	const { db } = req.app
+	const { auth } = req.app.config
 
 	if (db == null) {
 		throw Error('You must bind the router db to the app')
@@ -106,8 +101,8 @@ const login: RequestHandler = (req, res, next) => {
 				return
 			}
 
-			const accessToken = jwt.sign({ email }, JWT_SECRET_KEY, {
-				expiresIn: JWT_EXPIRES_IN,
+			const accessToken = jwt.sign({ email }, auth.secret, {
+				...auth.jwt,
 				subject: String(user.id),
 			})
 
@@ -116,22 +111,26 @@ const login: RequestHandler = (req, res, next) => {
 		.catch(next)
 }
 
+/**
+ * Update user profile
+ */
 const update: RequestHandler = (req, res, next) => {
 	const { email, password } = req.body as Partial<User>
+	const { auth } = req.app.config
 
-	if (email && !email.match(EMAIL_REGEX)) {
+	if (email && !email.match(auth.emailRegex)) {
 		res.status(400).jsonp('Email format is invalid')
 		return
 	}
 
 	if (password) {
-		if (password.length < MIN_PASSWORD_LENGTH) {
+		if (password.length < auth.minPassLength) {
 			res.status(400).jsonp('Password is too short')
 			return
 		}
 
 		// Reencrypt password on update
-		req.body.password = bcrypt.hashSync(password, SALT_LENGTH)
+		req.body.password = bcrypt.hashSync(password, auth.saltLength)
 	}
 
 	// TODO: create new access token when password or email changes
@@ -144,6 +143,7 @@ const update: RequestHandler = (req, res, next) => {
  * Users router
  */
 export default Router()
+	.use(loadConfig)
 	.use(bodyParsingHandler)
 	.post('/users|register|signup', create)
 	.post('/login|signin', login)
