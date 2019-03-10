@@ -16,9 +16,13 @@
 	},
 	"engineStrict": true,
 	"scripts": {
+		"lint": "tslint --fix -p .",
 		"build": "rimraf dist && tsc -p tsconfig.build.json",
 		"prepublishOnly": "yarn run build",
-		"test": "jest --watch --verbose false"
+		"pretest": "yarn run lint",
+		"test": "jest",
+		"test:watch": "jest --watch --verbose false",
+		"test:cover": "jest --coverage"
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",

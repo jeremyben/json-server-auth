@@ -18,6 +18,9 @@ yarn-error.log*
 # Dependencies directory
 node_modules/
 
+# Tests coverage
+coverage
+
 # Output of 'npm pack'
 *.tgz
 
@@ -26,6 +29,7 @@ node_modules/
 
 # Optional npm cache directory
 .npm
+package-lock.json
 
 # OS files
 .DS_Store
