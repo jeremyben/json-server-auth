@@ -230,8 +230,6 @@ json-server-auth db.json -r routes.json
 # with json-server-auth installed globally
 ```
 
-###### _Other custom routes_
-
 You can still add any other _normal_ custom routes :
 
 ```json
@@ -246,7 +244,7 @@ You can still add any other _normal_ custom routes :
 
 If you go the programmatic way and [use JSON Server as a module](https://github.com/typicode/json-server#module), there is an extra step to properly integrate JSON Server Auth :
 
-⚠️ You must bind the router property `db` to the created app, like the [JSON Server CLI does](https://github.com/typicode/json-server/blob/master/src/cli/run.js#L74).
+⚠️ You must bind the router property `db` to the created app, like the [JSON Server CLI does](https://github.com/typicode/json-server/blob/master/src/cli/run.js#L74), and you must apply the middlewares in a specific order.
 
 ```js
 const jsonServer = require('json-server')
@@ -258,19 +256,20 @@ const router = jsonServer.router('db.json')
 // /!\ Bind the router db to the app
 app.db = router.db
 
+// You must apply the auth middleware before the router
 app.use(auth)
 app.use(router)
 app.listen(3000)
 ```
 
-##### Permisssions Rewriter
+#### Permisssions Rewriter
 
-The custom rewriter is accessible in `json-server-auth/guards` :
+The custom rewriter is accessible via a subproperty :
 
 ```js
-const { rewriter } = require('json-server-auth/guards')
+const auth = require('json-server-auth')
 
-const rules = rewriter({
+const rules = auth.rewriter({
   // Permission rules
   users: 600,
   messages: 640,
@@ -278,8 +277,10 @@ const rules = rewriter({
   '/posts/:category': '/posts?category=:category',
 })
 
-// Add this before app.use(router)
+// You must apply the middlewares in the following order
 app.use(rules)
+app.use(auth)
+app.use(router)
 ```
 
 ## TODO 📜
@@ -290,5 +291,6 @@ app.use(rules)
   - [ ] Users collection name
   - [ ] Minimum password length
   - [ ] JWT expiry time
+  - [ ] JWT property name in response
 - [ ] Implement JWT Refresh Token
 - [ ] Possibility to disable password encryption ?

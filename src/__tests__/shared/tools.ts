@@ -1,7 +1,6 @@
 import { Application } from 'express'
 import * as jsonServer from 'json-server'
 import * as jsonServerAuth from '../..'
-import { rewriter } from '../../guards'
 
 export const USER = { email: 'jeremy@mail.com', password: '123456', name: 'Jeremy' }
 
@@ -15,7 +14,7 @@ export function inMemoryJsonServer(
 	// https://github.com/typicode/json-server/blob/master/src/cli/run.js#L74
 	app['db'] = router['db']
 
-	app.use(rewriter(resourceGuardMap))
+	app.use(jsonServerAuth.rewriter(resourceGuardMap))
 	app.use(jsonServerAuth)
 	app.use(router)
 
