@@ -1,5 +1,6 @@
 import { writeFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
+import { Application } from 'express'
 import * as jsonServer from 'json-server'
 import * as jsonServerAuth from '../..'
 import { rewriter } from '../../guards'
@@ -9,7 +10,7 @@ export const USER = { email: 'jeremy@mail.com', password: '123456', name: 'Jerem
 export function inMemoryJsonServer(
 	db: object = {},
 	resourceGuardMap: { [resource: string]: number } = {}
-) {
+): Application {
 	const app = jsonServer.create()
 	const router = jsonServer.router(db)
 	// Must bind the router db to the app like the cli does

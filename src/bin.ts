@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 
-// tslint:disable:no-submodule-imports
 import * as yargs from 'yargs'
 import * as jsonServerPkg from 'json-server/package.json'
 import { tmpdir } from 'os'
 import { readFileSync, writeFileSync } from 'fs'
 import { join, basename } from 'path'
 import { parseGuardsRules } from './guards'
-
 import run = require('json-server/lib/cli/run')
 
 // Get the json-server cli module and add our middlewares.
@@ -43,6 +41,7 @@ const argv = yargs
 	.boolean('quiet')
 	.boolean('no-cors')
 	.boolean('no-gzip')
+	.string('routes')
 	.help('help')
 	.alias('help', 'h')
 	.version(jsonServerPkg.version)
@@ -59,7 +58,7 @@ const argv = yargs
 if (argv.middlewares) {
 	;(<string[]>argv.middlewares).unshift(__dirname)
 } else {
-	;(<string[]>argv.middlewares) = [__dirname]
+	argv.middlewares = [__dirname]
 }
 
 // Adds guards to json-server routes.

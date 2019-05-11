@@ -202,7 +202,7 @@ export function parseGuardsRules(resourceGuardMap: { [resource: string]: any }) 
  * with JSON Server rewriter (which itself uses express-urlrewrite).
  * Works with normal rewrite rules as well.
  */
-export function rewriter(resourceGuardMap: { [resource: string]: number }) {
+export function rewriter(resourceGuardMap: { [resource: string]: number }): Router {
 	const routes = parseGuardsRules(resourceGuardMap)
 	return jsonServer.rewriter(routes)
 }
