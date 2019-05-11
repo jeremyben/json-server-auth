@@ -1,5 +1,3 @@
-import { writeFileSync, unlinkSync } from 'fs'
-import { join } from 'path'
 import { Application } from 'express'
 import * as jsonServer from 'json-server'
 import * as jsonServerAuth from '../..'
@@ -22,14 +20,4 @@ export function inMemoryJsonServer(
 	app.use(router)
 
 	return app
-}
-
-export const JSON_DB_PATH = join(__dirname, 'db.json')
-
-export function createJsonDbFile(db: object = {}) {
-	writeFileSync(JSON_DB_PATH, JSON.stringify(db))
-}
-
-export function deleteJsonDbFile() {
-	unlinkSync(JSON_DB_PATH)
 }
