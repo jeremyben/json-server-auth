@@ -81,3 +81,47 @@ describe('Query user', () => {
 		expect(res.body[0]).toMatchObject({ email: 'jeremy@mail.com' })
 	})
 })
+
+describe('Update user', () => {
+	test('[HAPPY] update name', () => {
+		return rq
+			.patch('/users/1')
+			.send({ name: 'Arthur' })
+			.expect(200, /"name": "Arthur"/)
+	})
+
+	test('[HAPPY] add other property', () => {
+		return rq
+			.patch('/users/1')
+			.send({ age: 20 })
+			.expect(200, /"age": 20/)
+	})
+
+	test('[HAPPY] modify email', () => {
+		return rq
+			.patch('/users/1')
+			.send({ email: 'arthur@mail.com' })
+			.expect(200)
+	})
+
+	test('[HAPPY] modify password', () => {
+		return rq
+			.patch('/users/1')
+			.send({ password: '965dsd3si' })
+			.expect(200)
+	})
+
+	test('[SAD] modify email with wrong input', () => {
+		return rq
+			.patch('/users/1')
+			.send({ email: 'arthur' })
+			.expect(400, /email format/i)
+	})
+
+	test('[SAD] Put with only one property', () => {
+		return rq
+			.put('/users/1')
+			.send({ email: 'arthur@mail.com' })
+			.expect(400, /required/i)
+	})
+})

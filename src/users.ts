@@ -10,9 +10,6 @@ import {
 } from './constants'
 import { bodyParsingHandler, errorHandler } from './shared-middlewares'
 
-/**
- * User Interface
- */
 interface User {
 	id: string
 	email: string
@@ -20,11 +17,37 @@ interface User {
 	[key: string]: any // Allow any other field
 }
 
+type ValidateHandler = ({ required: required }: { required: boolean }) => RequestHandler
+
+/**
+ * Validate email and password
+ */
+const validate: ValidateHandler = ({ required }) => (req, res, next) => {
+	const { email, password } = req.body as Partial<User>
+
+	if (required && (!email || !email.trim() || !password || !password.trim())) {
+		res.status(400).jsonp('Email and password are required')
+		return
+	}
+
+	if (email && !email.match(EMAIL_REGEX)) {
+		res.status(400).jsonp('Email format is invalid')
+		return
+	}
+
+	if (password && password.length < MIN_PASSWORD_LENGTH) {
+		res.status(400).jsonp('Password is too short')
+		return
+	}
+
+	next()
+}
+
 /**
  * Register / Create a user
  */
 const create: RequestHandler = (req, res, next) => {
-	const { email, password, ...rest } = req.body as Partial<User>
+	const { email, password, ...rest } = req.body as User
 	const { db } = req.app
 
 	if (db == null) {
@@ -32,21 +55,6 @@ const create: RequestHandler = (req, res, next) => {
 		// (https://github.com/typicode/json-server/blob/master/src/cli/run.js#L74),
 		// but if we use the json-server module API, we must do the same.
 		throw Error('You must bind the router db to the app')
-	}
-
-	if (!email || !email.trim() || !password || !password.trim()) {
-		res.status(400).jsonp('Email and password are required')
-		return
-	}
-
-	if (!email.match(EMAIL_REGEX)) {
-		res.status(400).jsonp('Email format is invalid')
-		return
-	}
-
-	if (password.length < MIN_PASSWORD_LENGTH) {
-		res.status(400).jsonp('Password is too short')
-		return
 	}
 
 	bcrypt
@@ -78,16 +86,11 @@ const create: RequestHandler = (req, res, next) => {
  * Login
  */
 const login: RequestHandler = (req, res, next) => {
-	const { email, password } = req.body as Partial<User>
+	const { email, password } = req.body as User
 	const { db } = req.app
 
 	if (db == null) {
 		throw Error('You must bind the router db to the app')
-	}
-
-	if (!email || !email.trim() || !password || !password.trim()) {
-		res.status(400).jsonp('Email and password are required')
-		return
 	}
 
 	// prettier-ignore
@@ -116,28 +119,19 @@ const login: RequestHandler = (req, res, next) => {
 		.catch(next)
 }
 
+/**
+ * Patch and Put user
+ */
+// TODO: create new access token when password or email changes
 const update: RequestHandler = (req, res, next) => {
-	const { email, password } = req.body as Partial<User>
-
-	if (email && !email.match(EMAIL_REGEX)) {
-		res.status(400).jsonp('Email format is invalid')
-		return
-	}
+	const { password } = req.body as Partial<User>
 
 	if (password) {
-		if (password.length < MIN_PASSWORD_LENGTH) {
-			res.status(400).jsonp('Password is too short')
-			return
-		}
-
-		// Reencrypt password on update
+		// TODO: change to async
 		req.body.password = bcrypt.hashSync(password, SALT_LENGTH)
 	}
 
-	// TODO: create new access token when password or email changes
-
-	// Continue with json-server router
-	next()
+	next() // Simply continue with json-server router
 }
 
 /**
@@ -145,8 +139,8 @@ const update: RequestHandler = (req, res, next) => {
  */
 export default Router()
 	.use(bodyParsingHandler)
-	.post('/users|register|signup', create)
-	.post('/login|signin', login)
-	.put('/users/:id', update)
-	.patch('/users/:id', update)
+	.post('/users|register|signup', validate({ required: true }), create)
+	.post('/login|signin', validate({ required: true }), login)
+	.put('/users/:id', validate({ required: true }), update)
+	.patch('/users/:id', validate({ required: false }), update)
 	.use(errorHandler)
