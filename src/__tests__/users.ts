@@ -32,6 +32,13 @@ describe('Register user', () => {
 			.expect(400, /required/i)
 	})
 
+	test('[SAD] Email already exists', () => {
+		return rq
+			.post('/register')
+			.send({ email: 'jeremy@mail.com', password: 'azerty123' })
+			.expect(400, /already/i)
+	})
+
 	test('Alternative routes', async () => {
 		const signupRes = await rq.post('/signup')
 		expect(signupRes.notFound).toBe(false)

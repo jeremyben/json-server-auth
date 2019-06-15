@@ -57,6 +57,13 @@ const create: RequestHandler = (req, res, next) => {
 		throw Error('You must bind the router db to the app')
 	}
 
+	// prettier-ignore
+	const existingUser = db.get('users').find({ email }).value()
+	if (existingUser) {
+		res.status(400).jsonp('Email already exists')
+		return
+	}
+
 	bcrypt
 		.hash(password, SALT_LENGTH)
 		.then((hash) => {
