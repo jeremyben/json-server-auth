@@ -23,7 +23,6 @@ declare namespace Express {
 	}
 
 	export interface Request {
-		// claims?: ReturnType<typeof import('jsonwebtoken').decode>
 		claims?: { email: string; iat: number; exp: number; sub: string }
 	}
 }
