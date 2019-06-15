@@ -7,7 +7,6 @@ beforeEach(async () => {
 	const db = { users: [] }
 	const app = inMemoryJsonServer(db)
 	rq = supertest(app)
-	// prettier-ignore
 	await rq.post('/signup').send(USER)
 })
 
@@ -104,11 +103,12 @@ describe('Update user', () => {
 			.expect(200)
 	})
 
-	test('[HAPPY] modify password', () => {
-		return rq
-			.patch('/users/1')
-			.send({ password: '965dsd3si' })
-			.expect(200)
+	test('[HAPPY] modify and hash new password', async () => {
+		const password = '965dsd3si'
+		const { body, status } = await rq.patch('/users/1').send({ password })
+
+		expect(status).toBe(200)
+		expect(body.password).not.toBe(password)
 	})
 
 	test('[SAD] modify email with wrong input', () => {

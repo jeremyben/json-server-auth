@@ -72,11 +72,20 @@ const create: RequestHandler = (req, res, next) => {
 			}
 		})
 		.then((user: User) => {
-			// Return an access token instead of the user record
-			const accessToken = jwt.sign({ email }, JWT_SECRET_KEY, {
-				expiresIn: JWT_EXPIRES_IN,
-				subject: String(user.id),
+			return new Promise<string>((resolve, reject) => {
+				jwt.sign(
+					{ email },
+					JWT_SECRET_KEY,
+					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
+					(error, idToken) => {
+						if (error) reject(error)
+						else resolve(idToken)
+					}
+				)
 			})
+		})
+		.then((accessToken) => {
+			// Return an access token instead of the user record
 			res.status(201).jsonp({ accessToken })
 		})
 		.catch(next)
@@ -104,19 +113,27 @@ const login: RequestHandler = (req, res, next) => {
 	bcrypt
 		.compare(password, user.password)
 		.then((same) => {
-			if (!same) {
-				res.status(400).jsonp('Incorrect password')
-				return
-			}
+			if (!same) throw 400
 
-			const accessToken = jwt.sign({ email }, JWT_SECRET_KEY, {
-				expiresIn: JWT_EXPIRES_IN,
-				subject: String(user.id),
+			return new Promise<string>((resolve, reject) => {
+				jwt.sign(
+					{ email },
+					JWT_SECRET_KEY,
+					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
+					(error, idToken) => {
+						if (error) reject(error)
+						else resolve(idToken)
+					}
+				)
 			})
-
+		})
+		.then((accessToken: string) => {
 			res.status(200).jsonp({ accessToken })
 		})
-		.catch(next)
+		.catch((err) => {
+			if (err === 400) res.status(400).jsonp('Incorrect password')
+			else next(err)
+		})
 }
 
 /**
@@ -126,12 +143,18 @@ const login: RequestHandler = (req, res, next) => {
 const update: RequestHandler = (req, res, next) => {
 	const { password } = req.body as Partial<User>
 
-	if (password) {
-		// TODO: change to async
-		req.body.password = bcrypt.hashSync(password, SALT_LENGTH)
+	if (!password) {
+		next() // Simply continue with json-server router
+		return
 	}
 
-	next() // Simply continue with json-server router
+	bcrypt
+		.hash(password, SALT_LENGTH)
+		.then((hash) => {
+			req.body.password = hash
+			next()
+		})
+		.catch(next)
 }
 
 /**

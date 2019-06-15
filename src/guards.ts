@@ -44,7 +44,6 @@ const loggedOnly: RequestHandler = (req, res, next) => {
  * Checking userId reference in the request or the resource.
  * Inherits from logged guard.
  */
-// tslint:disable:triple-equals - so we simply compare resource id (integer) with jwt sub (string)
 const privateOnly: RequestHandler = (req, res, next) => {
 	loggedOnly(req, res, () => {
 		const { db } = req.app
@@ -60,7 +59,7 @@ const privateOnly: RequestHandler = (req, res, next) => {
 		// check userId on the request body
 		if (req.method === 'POST' || req.method === 'PUT') {
 			// TODO: use foreignKeySuffix instead of assuming the default "Id"
-			const hasRightUserId = req.body.userId == req.claims!.sub
+			const hasRightUserId = String(req.body.userId) === req.claims!.sub
 			// No userId reference when creating a new user (duh)
 			const isUserResource = resource === 'users'
 
@@ -86,14 +85,16 @@ const privateOnly: RequestHandler = (req, res, next) => {
 				// get id if we are in the users collection
 				const userId = resource === 'users' ? entity.id : entity.userId
 
-				hasRightUserId = userId == req.claims!.sub
+				hasRightUserId = String(userId) === req.claims!.sub
 			} else {
 				const entities = db.get(resource).value() as any[]
 
 				// TODO: Array.every() for properly secured access.
 				// Array.some() is too relax, but maybe useful for prototyping usecase.
 				// But first we must handle the query params.
-				hasRightUserId = entities.some((entity) => entity.userId == req.claims!.sub)
+				hasRightUserId = entities.some(
+					(entity) => String(entity.userId) === req.claims!.sub
+				)
 			}
 
 			if (hasRightUserId) {
