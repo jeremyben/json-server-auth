@@ -19,6 +19,7 @@
 		// "importHelpers": true,
 		// "downlevelIteration": true,
 		// "isolatedModules": true,
+		"newLine": "lf",
 
 		/* Strict Type-Checking Options */
 		"strict": true,
