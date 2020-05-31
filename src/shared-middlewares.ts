@@ -1,13 +1,9 @@
-import * as bodyParser from 'body-parser'
-import { ErrorRequestHandler, Handler } from 'express'
+import { ErrorRequestHandler, Handler, json, urlencoded } from 'express'
 
 /**
  * Use same body-parser options as json-server
  */
-export const bodyParsingHandler = [
-	bodyParser.json({ limit: '10mb' }),
-	bodyParser.urlencoded({ extended: false }),
-]
+export const bodyParsingHandler = [json({ limit: '10mb' }), urlencoded({ extended: false })]
 
 /**
  * Json error handler

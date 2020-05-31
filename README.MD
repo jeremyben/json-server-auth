@@ -6,14 +6,14 @@ Because you also need a fake **authentication & authorization flow** for your pr
 
 ## Getting started
 
-Install JSON Server Auth :
+Install **both** JSON Server and JSON Server Auth :
 
 ```bash
 # NPM
-npm install -D json-server-auth
+npm install -D json-server json-server-auth
 
 # Yarn
-yarn add -D json-server-auth
+yarn add -D json-server json-server-auth
 ```
 
 Create a `db.json` file with a `users` collection :
