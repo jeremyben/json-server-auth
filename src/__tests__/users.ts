@@ -104,10 +104,7 @@ describe('Update user', () => {
 	})
 
 	test('[HAPPY] modify email', () => {
-		return rq
-			.patch('/users/1')
-			.send({ email: 'arthur@mail.com' })
-			.expect(200)
+		return rq.patch('/users/1').send({ email: 'arthur@mail.com' }).expect(200)
 	})
 
 	test('[HAPPY] modify and hash new password', async () => {

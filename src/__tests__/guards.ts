@@ -7,7 +7,10 @@ let bearer: { Authorization: string }
 beforeEach(async () => {
 	const db = {
 		users: [{ id: 1, email: 'albert@gmail.com' }],
-		messages: [{ id: 1, text: 'other', userId: 1 }, { id: 2, text: 'mine', userId: 2 }],
+		messages: [
+			{ id: 1, text: 'other', userId: 1 },
+			{ id: 2, text: 'mine', userId: 2 },
+		],
 	}
 	const guards = {
 		users: 600,
@@ -17,7 +20,6 @@ beforeEach(async () => {
 	rq = supertest(app)
 
 	// Create user (will have id:2) and keep access token
-	// prettier-ignore
 	const registerRes = await rq.post('/register').send(USER)
 	bearer = { Authorization: `Bearer ${registerRes.body.accessToken}` }
 })
@@ -25,35 +27,23 @@ beforeEach(async () => {
 describe('600: owner can read/write', () => {
 	test('[SAD] cannot list all users', async () => {
 		await rq.get('/users').expect(401)
-		await rq
-			.get('/users')
-			.set(bearer)
-			.expect(403)
+		await rq.get('/users').set(bearer).expect(403)
 	})
 
 	test('[SAD] cannot get other users', async () => {
 		await rq.get('/users/1').expect(401)
-		await rq
-			.get('/users/1')
-			.set(bearer)
-			.expect(403)
+		await rq.get('/users/1').set(bearer).expect(403)
 	})
 
 	test('[HAPPY] can get own information', async () => {
 		await rq.get('/users/2').expect(401)
-		await rq
-			.get('/users/2')
-			.set(bearer)
-			.expect(200)
+		await rq.get('/users/2').set(bearer).expect(200)
 	})
 })
 
 describe('640: owner can read/write, logged can read', () => {
 	test('[HAPPY] can list messages if logged', () => {
-		return rq
-			.get('/messages')
-			.set(bearer)
-			.expect(200)
+		return rq.get('/messages').set(bearer).expect(200)
 	})
 
 	test('[HAPPY] can write new messages if logged', () => {
@@ -73,10 +63,7 @@ describe('640: owner can read/write, logged can read', () => {
 	})
 
 	test('[HAPPY] can read messages from others', () => {
-		return rq
-			.get('/messages/1')
-			.set(bearer)
-			.expect(200, { id: 1, text: 'other', userId: 1 })
+		return rq.get('/messages/1').set(bearer).expect(200, { id: 1, text: 'other', userId: 1 })
 	})
 
 	test("[SAD] can't list messages if not logged", () => {

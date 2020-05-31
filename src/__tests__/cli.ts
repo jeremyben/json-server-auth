@@ -21,7 +21,7 @@ describe('CLI', () => {
 		const child = spawn(cmd, { shell: true })
 
 		child.stdout.on('data', (data: Buffer) => {
-			// prettier-ignore
+			// console.log(data.toString().trim())
 			const ok = data.toString().trim().includes('Done')
 			if (ok) treeKill(child.pid)
 		})
