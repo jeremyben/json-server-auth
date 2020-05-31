@@ -1,8 +1,8 @@
-import { RequestHandler } from 'express'
+import { Handler } from 'express'
 import guardsRouter, { rewriter } from './guards'
 import usersRouter from './users'
 
-interface MiddlewaresWithRewriter extends Array<RequestHandler> {
+interface MiddlewaresWithRewriter extends Array<Handler> {
 	rewriter: typeof rewriter
 }
 

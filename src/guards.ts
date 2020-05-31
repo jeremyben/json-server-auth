@@ -1,4 +1,4 @@
-import { RequestHandler, Router } from 'express'
+import { Router, Handler } from 'express'
 import * as jwt from 'jsonwebtoken'
 import * as jsonServer from 'json-server'
 import { stringify } from 'querystring'
@@ -9,7 +9,7 @@ import { bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
  * Logged Guard.
  * Check JWT.
  */
-const loggedOnly: RequestHandler = (req, res, next) => {
+const loggedOnly: Handler = (req, res, next) => {
 	const { authorization } = req.headers
 
 	if (!authorization) {
@@ -44,7 +44,7 @@ const loggedOnly: RequestHandler = (req, res, next) => {
  * Checking userId reference in the request or the resource.
  * Inherits from logged guard.
  */
-const privateOnly: RequestHandler = (req, res, next) => {
+const privateOnly: Handler = (req, res, next) => {
 	loggedOnly(req, res, () => {
 		const { db } = req.app
 		if (db == null) {
@@ -118,7 +118,7 @@ const privateOnly: RequestHandler = (req, res, next) => {
 /**
  * Forbid all methods except GET.
  */
-const readOnly: RequestHandler = (req, res, next) => {
+const readOnly: Handler = (req, res, next) => {
 	if (req.method === 'GET') {
 		next()
 	} else {
@@ -128,7 +128,7 @@ const readOnly: RequestHandler = (req, res, next) => {
 
 // prettier-ignore
 type ReadWriteBranch =
-	({ read, write }: { read: RequestHandler, write: RequestHandler }) => RequestHandler
+	({ read, write }: { read: Handler, write: Handler }) => Handler
 
 /**
  * Allow applying a different middleware for GET request (read) and others (write)
@@ -147,7 +147,7 @@ const branch: ReadWriteBranch = ({ read, write }) => {
 /**
  * Remove guard mod from baseUrl, so lowdb can handle the resource.
  */
-const flattenUrl: RequestHandler = (req, res, next) => {
+const flattenUrl: Handler = (req, res, next) => {
 	// req.url is writable and used for redirection,
 	// but app.use() already trim baseUrl from req.url,
 	// so we use app.all() that leaves the baseUrl with req.url,
@@ -181,21 +181,18 @@ export default Router()
  * { 'users': 600 } => { '/users*': '/600/users$1' }
  */
 export function parseGuardsRules(resourceGuardMap: { [resource: string]: any }) {
-	return Object.entries(resourceGuardMap).reduce(
-		(routes, [resource, guard]) => {
-			const isGuard = /^[640]{3}$/m.test(String(guard))
+	return Object.entries(resourceGuardMap).reduce((routes, [resource, guard]) => {
+		const isGuard = /^[640]{3}$/m.test(String(guard))
 
-			if (isGuard) {
-				routes[`/${resource}*`] = `/${guard}/${resource}$1`
-			} else {
-				// Return as is if not a guard
-				routes[resource] = guard
-			}
+		if (isGuard) {
+			routes[`/${resource}*`] = `/${guard}/${resource}$1`
+		} else {
+			// Return as is if not a guard
+			routes[resource] = guard
+		}
 
-			return routes
-		},
-		{} as ArgumentType<typeof jsonServer.rewriter>
-	)
+		return routes
+	}, {} as ArgumentType<typeof jsonServer.rewriter>)
 }
 
 /**

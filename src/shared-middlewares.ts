@@ -1,5 +1,5 @@
 import * as bodyParser from 'body-parser'
-import { ErrorRequestHandler, RequestHandler } from 'express'
+import { ErrorRequestHandler, Handler } from 'express'
 
 /**
  * Use same body-parser options as json-server
@@ -21,14 +21,14 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
  * Just executes the next middleware,
  * to pass directly the request to the json-server router
  */
-export const goNext: RequestHandler = (req, res, next) => {
+export const goNext: Handler = (req, res, next) => {
 	next()
 }
 
 /**
  * Look for a property in the request body and reject the request if found
  */
-export function forbidUpdateOn(...forbiddenBodyParams: string[]): RequestHandler {
+export function forbidUpdateOn(...forbiddenBodyParams: string[]): Handler {
 	return (req, res, next) => {
 		const bodyParams = Object.keys(req.body)
 		const hasForbiddenParam = bodyParams.some(forbiddenBodyParams.includes)
@@ -46,7 +46,7 @@ type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | '
 /**
  * Reject the request for a given method
  */
-export function forbidMethod(method: RequestMethod): RequestHandler {
+export function forbidMethod(method: RequestMethod): Handler {
 	return (req, res, next) => {
 		if (req.method === method) {
 			res.sendStatus(405)

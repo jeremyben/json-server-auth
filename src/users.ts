@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs'
-import { RequestHandler, Router } from 'express'
+import { Handler, Router } from 'express'
 import * as jwt from 'jsonwebtoken'
 import {
 	EMAIL_REGEX,
@@ -17,7 +17,7 @@ interface User {
 	[key: string]: any // Allow any other field
 }
 
-type ValidateHandler = ({ required: required }: { required: boolean }) => RequestHandler
+type ValidateHandler = ({ required: required }: { required: boolean }) => Handler
 
 /**
  * Validate email and password
@@ -46,7 +46,7 @@ const validate: ValidateHandler = ({ required }) => (req, res, next) => {
 /**
  * Register / Create a user
  */
-const create: RequestHandler = (req, res, next) => {
+const create: Handler = (req, res, next) => {
 	const { email, password, ...rest } = req.body as User
 	const { db } = req.app
 
@@ -101,7 +101,7 @@ const create: RequestHandler = (req, res, next) => {
 /**
  * Login
  */
-const login: RequestHandler = (req, res, next) => {
+const login: Handler = (req, res, next) => {
 	const { email, password } = req.body as User
 	const { db } = req.app
 
@@ -147,7 +147,7 @@ const login: RequestHandler = (req, res, next) => {
  * Patch and Put user
  */
 // TODO: create new access token when password or email changes
-const update: RequestHandler = (req, res, next) => {
+const update: Handler = (req, res, next) => {
 	const { password } = req.body as Partial<User>
 
 	if (!password) {
