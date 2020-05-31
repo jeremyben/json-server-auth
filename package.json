@@ -20,7 +20,8 @@
 		"prepublishOnly": "yarn run build",
 		"test": "jest",
 		"test:file": "jest --testPathPattern",
-		"test:watch": "jest --watch --verbose false"
+		"test:watch": "jest --watch --verbose false",
+		"release": "standard-version"
 	},
 	"peerDependencies": {
 		"json-server": "^0.15"
@@ -42,6 +43,7 @@
 		"jest": "^26.0.1",
 		"json-server": "^0.16.1",
 		"rimraf": "^3.0.2",
+		"standard-version": "^8.0.0",
 		"supertest": "^4.0.2",
 		"tree-kill": "^1.2.2",
 		"ts-jest": "^26.1.0",
