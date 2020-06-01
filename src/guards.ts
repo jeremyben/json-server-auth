@@ -80,14 +80,13 @@ const privateOnly: Handler = (req, res, next) => {
 
 			// TODO: use foreignKeySuffix instead of assuming the default "Id"
 			if (id) {
-				// prettier-ignore
-				const entity = db.get(resource).getById(id).value() as any
+				const entity: Record<string, any> = db.get(resource).getById(id).value()
 				// get id if we are in the users collection
 				const userId = resource === 'users' ? entity.id : entity.userId
 
 				hasRightUserId = String(userId) === req.claims!.sub
 			} else {
-				const entities = db.get(resource).value() as any[]
+				const entities: Record<string, any>[] = db.get(resource).value()
 
 				// TODO: Array.every() for properly secured access.
 				// Array.some() is too relax, but maybe useful for prototyping usecase.
@@ -126,21 +125,17 @@ const readOnly: Handler = (req, res, next) => {
 	}
 }
 
-// prettier-ignore
-type ReadWriteBranch =
-	({ read, write }: { read: Handler, write: Handler }) => Handler
+type ReadWriteBranch = ({ read, write }: { read: Handler; write: Handler }) => Handler
 
 /**
  * Allow applying a different middleware for GET request (read) and others (write)
  * (middleware returning a middleware)
  */
-const branch: ReadWriteBranch = ({ read, write }) => {
-	return (req, res, next) => {
-		if (req.method === 'GET') {
-			read(req, res, next)
-		} else {
-			write(req, res, next)
-		}
+const branch: ReadWriteBranch = ({ read, write }) => (req, res, next) => {
+	if (req.method === 'GET') {
+		read(req, res, next)
+	} else {
+		write(req, res, next)
 	}
 }
 
@@ -192,7 +187,7 @@ export function parseGuardsRules(resourceGuardMap: { [resource: string]: any }) 
 		}
 
 		return routes
-	}, {} as ArgumentType<typeof jsonServer.rewriter>)
+	}, {} as Parameters<typeof jsonServer.rewriter>[0])
 }
 
 /**

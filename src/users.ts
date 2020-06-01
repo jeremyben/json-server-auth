@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcryptjs'
 import { Handler, Router } from 'express'
 import * as jwt from 'jsonwebtoken'
+import { bodyParsingHandler, errorHandler } from './shared-middlewares'
 import {
 	EMAIL_REGEX,
 	JWT_EXPIRES_IN,
@@ -8,7 +9,6 @@ import {
 	MIN_PASSWORD_LENGTH,
 	SALT_LENGTH,
 } from './constants'
-import { bodyParsingHandler, errorHandler } from './shared-middlewares'
 
 interface User {
 	id: string
@@ -17,7 +17,7 @@ interface User {
 	[key: string]: any // Allow any other field
 }
 
-type ValidateHandler = ({ required: required }: { required: boolean }) => Handler
+type ValidateHandler = ({ required }: { required: boolean }) => Handler
 
 /**
  * Validate email and password
@@ -57,7 +57,6 @@ const create: Handler = (req, res, next) => {
 		throw Error('You must bind the router db to the app')
 	}
 
-	// prettier-ignore
 	const existingUser = db.get('users').find({ email }).value()
 	if (existingUser) {
 		res.status(400).jsonp('Email already exists')
@@ -109,7 +108,6 @@ const login: Handler = (req, res, next) => {
 		throw Error('You must bind the router db to the app')
 	}
 
-	// prettier-ignore
 	const user = db.get('users').find({ email }).value() as User
 
 	if (!user) {

@@ -1,7 +1,5 @@
 // tslint:disable:no-implicit-dependencies ban-types no-namespace
 
-declare type ArgumentType<F extends Function> = F extends (arg: infer Arg) => any ? Arg : never
-
 declare namespace Express {
 	export interface Application {
 		/**
