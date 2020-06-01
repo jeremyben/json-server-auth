@@ -3,9 +3,10 @@ import { inMemoryJsonServer, USER } from './shared/tools'
 
 let rq: supertest.SuperTest<supertest.Test>
 let bearer: { Authorization: string }
+let db: { users: any[]; messages: any[] }
 
 beforeEach(async () => {
-	const db = {
+	db = {
 		users: [{ id: 1, email: 'albert@gmail.com' }],
 		messages: [
 			{ id: 1, text: 'other', userId: 1 },
@@ -69,4 +70,8 @@ describe('640: owner can read/write, logged can read', () => {
 	test("[SAD] can't list messages if not logged", () => {
 		return rq.get('/messages').expect(401)
 	})
+})
+
+test('create another user after setting guards', async () => {
+	await rq.post('/users').send({ email: 'arthur@email.com', password: '1234' }).expect(201)
 })
