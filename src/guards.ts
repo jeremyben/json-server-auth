@@ -10,6 +10,20 @@ import { bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
  * Check JWT.
  */
 const loggedOnly: Handler = (req, res, next) => {
+	if (
+		req.method !== 'GET' &&
+		req.method !== 'POST' &&
+		req.method !== 'PUT' &&
+		req.method !== 'PATCH' &&
+		req.method !== 'DELETE'
+	) {
+		// We let pass the other methods (HEAD, OPTIONS)
+		// as they are not handled by json-server router,
+		// but maybe by another user-defined middleware
+		next()
+		return
+	}
+
 	const { authorization } = req.headers
 
 	if (!authorization) {

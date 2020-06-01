@@ -72,6 +72,11 @@ describe('640: owner can read/write, logged can read', () => {
 	})
 })
 
-test('create another user after setting guards', async () => {
+test('[HAPPY] create another user after setting guards', async () => {
 	await rq.post('/users').send({ email: 'arthur@email.com', password: '1234' }).expect(201)
+})
+
+test('[HAPPY] other methods pass through', async () => {
+	await rq.options('/users/1').expect(200)
+	await rq.head('/users/1').expect(200)
 })
