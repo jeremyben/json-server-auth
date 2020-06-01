@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/jeremyben/json-server-auth/compare/v2.0.0...v2.0.1) (2020-06-01)
+
+
+### Bug Fixes
+
+* allow user creation on users route after setting guards ([a29ec45](https://github.com/jeremyben/json-server-auth/commit/a29ec452141f79fc5967538d4a852b3462f2b928))
+
 ## [2.0.0](https://github.com/jeremyben/json-server-auth/compare/v1.2.1...v2.0.0) (2020-05-31)
 
 

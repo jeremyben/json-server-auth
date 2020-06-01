@@ -1,7 +1,7 @@
 {
 	"name": "json-server-auth",
 	"description": "Authentication middleware for JSON Server",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"author": "Jeremy Bensimon",
 	"repository": "github:jeremyben/json-server-auth",
 	"license": "MIT",
