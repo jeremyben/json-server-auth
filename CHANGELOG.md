@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/jeremyben/json-server-auth/compare/v2.0.1...v2.0.2) (2020-06-01)
+
+
+### Bug Fixes
+
+* allow other HTTP methods like OPTIONS to pass through guards ([7b8d1a0](https://github.com/jeremyben/json-server-auth/commit/7b8d1a0fe9d12b4d527b3a795d4aed9fdcf07961))
+
 ### [2.0.1](https://github.com/jeremyben/json-server-auth/compare/v2.0.0...v2.0.1) (2020-06-01)
 
 
