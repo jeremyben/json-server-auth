@@ -47,8 +47,12 @@ const validate: ValidateHandler = ({ required }) => (req, res, next) => {
  * Register / Create a user
  */
 const create: Handler = (req, res, next) => {
-	const { email, password, ...rest } = req.body as User
+	const { email, password, authFields, ...rest } = req.body as User
 	const { db } = req.app
+
+	const fields = {};
+	if (authFields)
+		authFields.forEach(field => fields[field] = req.body[field]);
 
 	if (db == null) {
 		// json-server CLI expose the router db to the app
@@ -71,7 +75,7 @@ const create: Handler = (req, res, next) => {
 			try {
 				return db
 					.get('users')
-					.insert({ email, password: hash, ...rest })
+					.insert({ email, password: hash, authFields, ...rest })
 					.write()
 			} catch (error) {
 				throw Error('You must add a "users" collection to your db')
@@ -80,7 +84,7 @@ const create: Handler = (req, res, next) => {
 		.then((user: User) => {
 			return new Promise<string>((resolve, reject) => {
 				jwt.sign(
-					{ email },
+					{ email, ...fields },
 					JWT_SECRET_KEY,
 					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
 					(error, idToken) => {
@@ -115,6 +119,10 @@ const login: Handler = (req, res, next) => {
 		return
 	}
 
+	const fields = {};
+	if (user.authFields)
+		user.authFields.forEach(field => fields[field] = user[field]);
+
 	bcrypt
 		.compare(password, user.password)
 		.then((same) => {
@@ -122,7 +130,7 @@ const login: Handler = (req, res, next) => {
 
 			return new Promise<string>((resolve, reject) => {
 				jwt.sign(
-					{ email },
+					{ email, ...fields },
 					JWT_SECRET_KEY,
 					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
 					(error, idToken) => {

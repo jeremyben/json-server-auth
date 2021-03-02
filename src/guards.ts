@@ -1,7 +1,7 @@
 import { Router, Handler } from 'express'
 import * as jwt from 'jsonwebtoken'
 import * as jsonServer from 'json-server'
-import { stringify } from 'querystring'
+import { stringify, ParsedUrlQueryInput } from 'querystring'
 import { JWT_SECRET_KEY } from './constants'
 import { bodyParsingHandler, errorHandler, goNext } from './shared-middlewares'
 
@@ -66,7 +66,7 @@ const privateOnly: Handler = (req, res, next) => {
 		}
 
 		// TODO: handle query params instead of removing them
-		const path = req.url.replace(`?${stringify(req.query)}`, '')
+		const path = req.url.replace(`?${stringify(req.query as ParsedUrlQueryInput)}`, '')
 		const [, mod, resource, id] = path.split('/')
 
 		// Creation and replacement
