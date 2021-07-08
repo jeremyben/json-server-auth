@@ -133,7 +133,8 @@ const login: Handler = (req, res, next) => {
 			})
 		})
 		.then((accessToken: string) => {
-			res.status(200).jsonp({ accessToken })
+			const { password, ...rest} = user;
+			res.status(200).jsonp({ accessToken, ...rest })
 		})
 		.catch((err) => {
 			if (err === 400) res.status(400).jsonp('Incorrect password')
