@@ -26,7 +26,7 @@ node_modules/
 
 # Optional npm cache directory
 .npm
-
+.idea
 # OS files
 .DS_Store
 Thumbs.db
