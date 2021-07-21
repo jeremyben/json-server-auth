@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/jeremyben/json-server-auth/compare/v2.0.2...v2.1.0) (2021-07-21)
+
+
+### Features
+
+* register and login return user data besides access token ([5af16c9](https://github.com/jeremyben/json-server-auth/commit/5af16c940e8a41b0bd81c478813827561eb2d5b9))
+
+
+### Bug Fixes
+
+* bin path and peer dependency version ([89af19e](https://github.com/jeremyben/json-server-auth/commit/89af19ef636136d8db389879857282cfc6a1636f))
+* put and patch on user collection ([4382ef1](https://github.com/jeremyben/json-server-auth/commit/4382ef1a41dfa90734719eb2cc163c355ec0d733))
+
 ### [2.0.2](https://github.com/jeremyben/json-server-auth/compare/v2.0.1...v2.0.2) (2020-06-01)
 
 
