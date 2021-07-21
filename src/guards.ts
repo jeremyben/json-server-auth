@@ -71,9 +71,10 @@ const privateOnly: Handler = (req, res, next) => {
 
 		// Creation and replacement
 		// check userId on the request body
-		if (req.method === 'POST' || req.method === 'PUT') {
+		if (req.method === 'POST') {
 			// TODO: use foreignKeySuffix instead of assuming the default "Id"
 			const hasRightUserId = String(req.body.userId) === req.claims!.sub
+
 			// No userId reference when creating a new user (duh)
 			const isUserResource = resource === 'users'
 
@@ -84,6 +85,24 @@ const privateOnly: Handler = (req, res, next) => {
 					'Private resource creation: request body must have a reference to the owner id'
 				)
 			}
+
+			return
+		}
+
+		if (req.method === 'PUT') {
+			// TODO: use foreignKeySuffix instead of assuming the default "Id"
+			const hasRightUserId = String(req.body.userId) === req.claims!.sub
+
+			const isUserResourceAndIsRightId = resource === 'users' && id === req.claims!.sub
+
+			if (hasRightUserId || isUserResourceAndIsRightId) {
+				next()
+			} else {
+				res.status(403).jsonp(
+					'Private resource replacement: request body must have a reference to the owner id'
+				)
+			}
+
 			return
 		}
 

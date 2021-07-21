@@ -3,7 +3,7 @@ import { inMemoryJsonServer, USER } from './shared/tools'
 
 let rq: supertest.SuperTest<supertest.Test>
 let bearer: { Authorization: string }
-let db: { users: any[]; messages: any[] }
+let db: { users: any[]; messages: any[]; secrets: any[] }
 
 beforeEach(async () => {
 	db = {
@@ -12,17 +12,21 @@ beforeEach(async () => {
 			{ id: 1, text: 'other', userId: 1 },
 			{ id: 2, text: 'mine', userId: 2 },
 		],
+		secrets: [],
 	}
+
 	const guards = {
 		users: 600,
 		messages: 640,
+		secrets: 600,
 	}
+
 	const app = inMemoryJsonServer(db, guards)
 	rq = supertest(app)
 
 	// Create user (will have id:2) and keep access token
-	const registerRes = await rq.post('/register').send(USER)
-	bearer = { Authorization: `Bearer ${registerRes.body.accessToken}` }
+	const res = await rq.post('/register').send(USER)
+	bearer = { Authorization: `Bearer ${res.body.accessToken}` }
 })
 
 describe('600: owner can read/write', () => {
@@ -39,6 +43,12 @@ describe('600: owner can read/write', () => {
 	test('[HAPPY] can get own information', async () => {
 		await rq.get('/users/2').expect(401)
 		await rq.get('/users/2').set(bearer).expect(200)
+	})
+
+	test('[HAPPY] can write and read from private collection', async () => {
+		await rq.post('/secrets').set(bearer).send({ size: 'big', userId: '2' }).expect(201)
+		const res = await rq.get('/secrets/1').set(bearer)
+		expect(res.body).toEqual({ id: 1, userId: '2', size: 'big' })
 	})
 })
 
@@ -73,7 +83,20 @@ describe('640: owner can read/write, logged can read', () => {
 })
 
 test('[HAPPY] create another user after setting guards', async () => {
-	await rq.post('/users').send({ email: 'arthur@email.com', password: '1234' }).expect(201)
+	const res = await rq
+		.post('/users')
+		.send({ email: 'arthur@email.com', password: '1234' })
+		.expect(201)
+
+	const otherBearer = { Authorization: `Bearer ${res.body.accessToken}` }
+
+	await rq.get('/users/3').set(otherBearer).expect(200)
+
+	await rq
+		.put('/users/3')
+		.set(otherBearer)
+		.send({ email: 'arthur@email.com', password: '1234' })
+		.expect(200)
 })
 
 test('[HAPPY] other methods pass through', async () => {

@@ -167,12 +167,14 @@ const update: Handler = (req, res, next) => {
 /**
  * Users router
  */
+// Must match routes with and without guards
 export default Router()
 	.use(bodyParsingHandler)
 	.post('/users|register|signup', validate({ required: true }), create)
-	// Bypass eventual users guards to still allow creation
 	.post('/[640]{3}/users', validate({ required: true }), create)
 	.post('/login|signin', validate({ required: true }), login)
 	.put('/users/:id', validate({ required: true }), update)
+	.put('/[640]{3}/users/:id', validate({ required: true }), update)
 	.patch('/users/:id', validate({ required: false }), update)
+	.patch('/[640]{3}/users/:id', validate({ required: false }), update)
 	.use(errorHandler)
