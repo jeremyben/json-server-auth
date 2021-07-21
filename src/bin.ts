@@ -57,7 +57,7 @@ const argv = yargs
 
 // Add our index path to json-server middlewares.
 if (argv.middlewares) {
-	;(<string[]>argv.middlewares).unshift(__dirname)
+	argv.middlewares.unshift(__dirname)
 } else {
 	argv.middlewares = [__dirname]
 }

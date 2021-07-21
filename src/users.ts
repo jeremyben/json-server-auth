@@ -22,26 +22,28 @@ type ValidateHandler = ({ required }: { required: boolean }) => Handler
 /**
  * Validate email and password
  */
-const validate: ValidateHandler = ({ required }) => (req, res, next) => {
-	const { email, password } = req.body as Partial<User>
+const validate: ValidateHandler =
+	({ required }) =>
+	(req, res, next) => {
+		const { email, password } = req.body as Partial<User>
 
-	if (required && (!email || !email.trim() || !password || !password.trim())) {
-		res.status(400).jsonp('Email and password are required')
-		return
+		if (required && (!email || !email.trim() || !password || !password.trim())) {
+			res.status(400).jsonp('Email and password are required')
+			return
+		}
+
+		if (email && !email.match(EMAIL_REGEX)) {
+			res.status(400).jsonp('Email format is invalid')
+			return
+		}
+
+		if (password && password.length < MIN_PASSWORD_LENGTH) {
+			res.status(400).jsonp('Password is too short')
+			return
+		}
+
+		next()
 	}
-
-	if (email && !email.match(EMAIL_REGEX)) {
-		res.status(400).jsonp('Email format is invalid')
-		return
-	}
-
-	if (password && password.length < MIN_PASSWORD_LENGTH) {
-		res.status(400).jsonp('Password is too short')
-		return
-	}
-
-	next()
-}
 
 /**
  * Register / Create a user
@@ -83,9 +85,9 @@ const create: Handler = (req, res, next) => {
 					{ email },
 					JWT_SECRET_KEY,
 					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
-					(error, idToken) => {
+					(error, accessToken) => {
 						if (error) reject(error)
-						else resolve(idToken)
+						else resolve(accessToken!)
 					}
 				)
 			})
@@ -125,9 +127,9 @@ const login: Handler = (req, res, next) => {
 					{ email },
 					JWT_SECRET_KEY,
 					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
-					(error, idToken) => {
+					(error, accessToken) => {
 						if (error) reject(error)
-						else resolve(idToken)
+						else resolve(accessToken!)
 					}
 				)
 			})

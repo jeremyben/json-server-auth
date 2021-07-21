@@ -117,6 +117,7 @@ const privateOnly: Handler = (req, res, next) => {
 					'Private resource access: entity must have a reference to the owner id'
 				)
 			}
+
 			return
 		}
 
@@ -145,13 +146,15 @@ type ReadWriteBranch = ({ read, write }: { read: Handler; write: Handler }) => H
  * Allow applying a different middleware for GET request (read) and others (write)
  * (middleware returning a middleware)
  */
-const branch: ReadWriteBranch = ({ read, write }) => (req, res, next) => {
-	if (req.method === 'GET') {
-		read(req, res, next)
-	} else {
-		write(req, res, next)
+const branch: ReadWriteBranch =
+	({ read, write }) =>
+	(req, res, next) => {
+		if (req.method === 'GET') {
+			read(req, res, next)
+		} else {
+			write(req, res, next)
+		}
 	}
-}
 
 /**
  * Remove guard mod from baseUrl, so lowdb can handle the resource.
