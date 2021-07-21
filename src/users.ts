@@ -80,21 +80,21 @@ const create: Handler = (req, res, next) => {
 			}
 		})
 		.then((user: User) => {
-			return new Promise<string>((resolve, reject) => {
+			return new Promise<{ accessToken: string; user: User }>((resolve, reject) => {
 				jwt.sign(
 					{ email },
 					JWT_SECRET_KEY,
 					{ expiresIn: JWT_EXPIRES_IN, subject: String(user.id) },
 					(error, accessToken) => {
 						if (error) reject(error)
-						else resolve(accessToken!)
+						else resolve({ accessToken: accessToken!, user })
 					}
 				)
 			})
 		})
-		.then((accessToken) => {
-			// Return an access token instead of the user record
-			res.status(201).jsonp({ accessToken })
+		.then(({ accessToken, user }) => {
+			const { password: _, ...userWithoutPassword } = user
+			res.status(201).jsonp({ accessToken, user: userWithoutPassword })
 		})
 		.catch(next)
 }
@@ -135,7 +135,8 @@ const login: Handler = (req, res, next) => {
 			})
 		})
 		.then((accessToken: string) => {
-			res.status(200).jsonp({ accessToken })
+			const { password: _, ...userWithoutPassword } = user
+			res.status(200).jsonp({ accessToken, user: userWithoutPassword })
 		})
 		.catch((err) => {
 			if (err === 400) res.status(400).jsonp('Incorrect password')

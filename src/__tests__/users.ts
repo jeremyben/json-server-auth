@@ -11,11 +11,14 @@ beforeEach(async () => {
 })
 
 describe('Register user', () => {
-	test('[HAPPY] Register and return access token', () => {
-		return rq
+	test('[HAPPY] Register and return access token and user', async () => {
+		const res = await rq
 			.post('/register')
 			.send({ email: 'albert@mail.com', password: 'azerty123', name: 'Albert' })
-			.expect(201, /"accessToken": ".*"/)
+
+		expect(res.status).toBe(201)
+		expect(res.body.accessToken).toMatch(/^[\w-]*\.[\w-]*\.[\w-]*$/)
+		expect(res.body.user).toStrictEqual({ id: 2, email: 'albert@mail.com', name: 'Albert' })
 	})
 
 	test('[SAD] Bad email', () => {
