@@ -65,12 +65,17 @@ POST /register
 ```
 
 The password is encrypted by [bcryptjs](https://github.com/dcodeIO/bcrypt.js).
-The response contains the JWT access token (expiration time of 1 hour) :
+
+The response contains the JWT access token (expiration time of 1 hour), and the user data (without the password) :
 
 ```http
 201 Created
 {
-  "accessToken": "xxx.xxx.xxx"
+  "accessToken": "xxx.xxx.xxx",
+  "user": {
+    "id": 1,
+    "email": "olivier@mail.com"
+  }
 }
 ```
 
@@ -110,12 +115,18 @@ POST /login
 }
 ```
 
-The response contains the JWT access token (expiration time of 1 hour) :
+The response contains the JWT access token (expiration time of 1 hour), and the user data (without the password) :
 
 ```http
 200 OK
 {
-  "accessToken": "xxx.xxx.xxx"
+  "accessToken": "xxx.xxx.xxx",
+  "user": {
+    "id": 1,
+    "email": "olivier@mail.com",
+    "firstname": "Olivier",
+    "lastname": "Monge"
+  }
 }
 ```
 
