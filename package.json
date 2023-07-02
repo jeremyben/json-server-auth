@@ -30,6 +30,8 @@
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
+		"cypress": "^12.16.0",
+		"json-server-auth": "^2.1.0",
 		"jsonwebtoken": "^8.5.1",
 		"yargs": "^16.2.0"
 	},
