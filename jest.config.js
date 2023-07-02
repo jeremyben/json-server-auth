@@ -9,6 +9,7 @@ module.exports = {
 	testPathIgnorePatterns: ['/node_modules/', '/fixtures/', '/__tests__/shared/', '/.vscode/'],
 	globals: {
 		'ts-jest': {
+			baseUrl: "http://localhost:3000",
 			diagnostics: {
 				// https://kulshekhar.github.io/ts-jest/user/config/diagnostics
 				warnOnly: true,
